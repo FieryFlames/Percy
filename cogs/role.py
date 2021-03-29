@@ -36,7 +36,7 @@ class RoleManagement(commands.Cog):
     async def _recolor(self, ctx, new_color):
         return
 
-    # TODO: Implement role sharing, 
+    # TODO: Implement role sharing, https://trello.com/c/0uGdMGx2/9-role-sharing
     #@cog_ext.cog_subcommand(guild_ids=guild_ids, base="role", name="share", description="Share your custom role.",
     #                        options=[
     #                            create_option(
