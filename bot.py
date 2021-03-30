@@ -43,7 +43,7 @@ class BBot(commands.Bot):
         self.engine = create_async_engine(url)
 
         # color
-        self.color = int(color, 16)
+        self.color = color
 
         # add slash commands
         SlashCommand(self, sync_commands=True)
