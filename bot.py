@@ -1,7 +1,6 @@
 # Launcher Imports
 import argparse
-import configparser
-import json
+import toml
 # Bot Imports
 import discord
 from discord.ext import commands
@@ -10,8 +9,6 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from cogs.utils.models import Base
 
 # define some stuff
-config = configparser.ConfigParser()
-
 parser = argparse.ArgumentParser(description="Percy Launcher")
 
 # add arguments
@@ -20,13 +17,14 @@ parser.add_argument(
 # parse
 args = parser.parse_args()
 # read conf
-config.read(args.config)
+with open(args.config) as conf_file:
+    config = toml.load(conf_file)
 
 token = config["Discord"]["Token"]
 url = config["SQLAlchemy"]["URL"]
 color = config["Bot"]["Color"]
 version = config["Bot"]["Version"]
-cogs = json.loads(config["Bot"]["Cogs"])
+cogs = config["Bot"]["Cogs"]
 
 # actual bot
 
