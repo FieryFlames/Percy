@@ -1,8 +1,10 @@
 from discord.ext import commands
 from discord_slash import cog_ext
+from discord_slash.utils.manage_commands import create_option
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
-from discord_slash.utils.manage_commands import create_option
+from sqlalchemy.future import select
+from .utils.models import Booster
 
 guild_ids = [734485213304062053]
 
@@ -11,6 +13,17 @@ class RoleManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.sessionmaker = sessionmaker(self.bot.engine, class_=AsyncSession)
+    
+    async def assure_booster(self, member):
+        async with self.sessionmaker() as session:
+            # Get the boooster
+            booster = await session.execute(select(Booster).where(Booster.user_id == member.id, Booster.guild_id == member.guild_id))
+            # if no booster is returned we make one
+            if booster == None:
+                booser = Booster(guild_id=member.guild.id, user_id=member.id)
+                # add booster to the db
+                await session.add(booster) 
+            await session.commit()
 
     @cog_ext.cog_subcommand(guild_ids=guild_ids, base="role", name="rename", description="Rename your custom role.",
                             options=[
@@ -37,7 +50,7 @@ class RoleManagement(commands.Cog):
         return
 
     # TODO: Implement role sharing, https://trello.com/c/0uGdMGx2/9-role-sharing
-    #@cog_ext.cog_subcommand(guild_ids=guild_ids, base="role", name="share", description="Share your custom role.",
+    # @cog_ext.cog_subcommand(guild_ids=guild_ids, base="role", name="share", description="Share your custom role.",
     #                        options=[
     #                            create_option(
     #                                name="member",
@@ -46,7 +59,7 @@ class RoleManagement(commands.Cog):
     #                                required=True
     #                            )
     #                        ])
-    #async def _share(self, ctx, extra_user):
+    # async def _share(self, ctx, extra_user):
     #    return
 
 
