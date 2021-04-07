@@ -1,11 +1,11 @@
-# Launcher Imports
 import argparse
-import toml
-# Bot Imports
+
 import discord
+import toml
 from discord.ext import commands
 from discord_slash import SlashCommand
 from sqlalchemy.ext.asyncio import create_async_engine
+
 from cogs.utils.models import Base
 
 # define some stuff
@@ -14,6 +14,8 @@ parser = argparse.ArgumentParser(description="Percy Launcher")
 # add arguments
 parser.add_argument(
     "--config", help="Use a differect config other than the default one.", default="percy.ini")
+parser.add_argument(
+    "--debug", help="Drops all existing DB tables & disables nitro boosting requirement.", default=False)
 # parse
 args = parser.parse_args()
 # read conf
@@ -25,12 +27,15 @@ url = config["SQLAlchemy"]["URL"]
 color = config["Bot"]["Color"]
 version = config["Bot"]["Version"]
 cogs = config["Bot"]["Cogs"]
-
+if args.debug is not None: 
+    debug = args.debug 
+else:
+    debug = False
 # actual bot
 
 
 class BBot(commands.Bot):
-    def __init__(self, url, color, version, cogs):
+    def __init__(self, url, color, version, cogs, debug):
         # set intents
         intents = discord.Intents.default()
         intents.members = True
@@ -47,6 +52,8 @@ class BBot(commands.Bot):
 
         # add slash commands
         SlashCommand(self, sync_commands=True)
+
+        self.debug = debug
         
         for cog in cogs:
             self.load_extension(cog)
@@ -54,6 +61,8 @@ class BBot(commands.Bot):
     async def on_connect(self):
         # Create the table if it doesn't exist
         async with self.engine.begin() as conn:
+            if self.debug:
+                await conn.run_sync(Base.metadata.drop_all)
             await conn.run_sync(Base.metadata.create_all)
 
         # set the activity
@@ -65,6 +74,6 @@ class BBot(commands.Bot):
         print("Ready!")
 
 
-bot = BBot(url, color, version, cogs)
+bot = BBot(url, color, version, cogs, debug)
 
 bot.run(token)

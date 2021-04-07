@@ -1,13 +1,17 @@
+from sqlalchemy import BIGINT, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer
 
 Base = declarative_base()
+
 
 class Booster(Base):
     __tablename__ = "boosters"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BIGINT, primary_key=True)
 
-    guild_id = Column(Integer)
-    user_id = Column(Integer)
-    role_id = Column(Integer)
+    guild_id = Column(BIGINT)
+    user_id = Column(BIGINT)
+    role_id = Column(BIGINT, nullable=True)
+    # in my testing, the longest a role name can be is 100 characters
+    role_name = Column(String(100), nullable=True)
+    role_color = Column(Integer, nullable=True)
