@@ -122,7 +122,7 @@ class RoleManagement(commands.Cog):
             await ctx.send("New name must be under 100 characters.", hidden=True)
             return
 
-        if predict_prob([new_name]) >= 0.12:
+        if predict_prob([new_name]) >= 0.17:
             await ctx.send("Profanity detected, unable to rename your custom role to that.", hidden=True)
             return
 
