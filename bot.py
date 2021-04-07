@@ -4,6 +4,7 @@ import discord
 import toml
 from discord.ext import commands
 from discord_slash import SlashCommand
+from discord_slash.utils import manage_commands
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from cogs.utils.models import Base
@@ -63,6 +64,7 @@ class BBot(commands.Bot):
         async with self.engine.begin() as conn:
             if self.debug:
                 await conn.run_sync(Base.metadata.drop_all)
+                await manage_commands.remove_all_commands_in(734485213304062053)
             await conn.run_sync(Base.metadata.create_all)
 
         # set the activity
