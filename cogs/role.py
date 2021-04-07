@@ -7,7 +7,7 @@ from discord_slash.utils.manage_commands import create_option
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
-from profanity_check import predict
+from profanity_check import predict_prob
 
 from .utils.models import Booster
 
@@ -121,8 +121,8 @@ class RoleManagement(commands.Cog):
         if len(new_name) >= 101:
             await ctx.send("New name must be under 100 characters.", hidden=True)
             return
-        # check for profanity
-        if predict([new_name]):
+
+        if predict_prob([new_name]) >= 0.086:
             await ctx.send("Profanity detected, unable to rename your custom role to that.", hidden=True)
             return
 
