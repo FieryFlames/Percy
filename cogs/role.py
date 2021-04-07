@@ -126,6 +126,10 @@ class RoleManagement(commands.Cog):
             await ctx.send("Profanity detected, unable to rename your custom role to that.", hidden=True)
             return
 
+        if new_name in ["DJ", "Bot Commander", "Giveaways"]:
+            await ctx.send("Blacklisted role name, unable to rename your custom role to that.", hidden=True)
+            return
+
         await ctx.defer(hidden=True)
         # make sure we have the booster and the role is alright
         await self.assure_booster(ctx.author)
