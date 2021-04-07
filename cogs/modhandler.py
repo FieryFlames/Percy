@@ -21,6 +21,8 @@ class ModHandler(commands.Cog):
                 # get the booster
                 result = await session.execute(select(Booster).where(Booster.user_id == user.id, Booster.guild_id == guild.id))
                 booster = result.scalars().first()
+                if not booster:
+                    return
                 # get the role
                 role = guild.get_role(booster.role_id)
                 # delete that mf
@@ -40,6 +42,8 @@ class ModHandler(commands.Cog):
                 # get the booster
                 result = await session.execute(select(Booster).where(Booster.user_id == member.id, Booster.guild_id == guild.id))
                 booster = result.scalars().first()
+                if not booster:
+                    return
                 # get the role
                 role = guild.get_role(booster.role_id)
                 # delete that mf
