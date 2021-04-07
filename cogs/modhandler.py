@@ -14,6 +14,8 @@ class ModHandler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, user):
+        if user.bot:
+            return
         async with self.sessionmaker() as session:
             async with session.begin():
                 # get the booster
@@ -30,6 +32,8 @@ class ModHandler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
+        if member.bot:
+            return
         guild = member.guild
         async with self.sessionmaker() as session:
             async with session.begin():
