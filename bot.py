@@ -28,7 +28,7 @@ color = config["Bot"]["Color"]
 version = config["Bot"]["Version"]
 cogs = config["Bot"]["Cogs"]
 if args.debug is not None: 
-    debug = args.debug 
+    debug = bool(args.debug) 
 else:
     debug = False
 # actual bot
@@ -45,7 +45,7 @@ class BBot(commands.Bot):
         self.remove_command('help')
 
         # Database load
-        self.engine = create_async_engine(url)
+        self.engine = create_async_engine(url, future=True)
 
         # color
         self.color = color

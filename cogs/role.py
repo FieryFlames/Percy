@@ -1,4 +1,4 @@
-from discord import Color
+from discord import Color, AllowedMentions
 from discord.ext import commands
 from discord.ext.commands import ColorConverter
 from discord.ext.commands.errors import BadColorArgument
@@ -9,6 +9,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 from profanity_check import predict_prob
 
+from .utils.ciede2000 import rgb2lab, ciede2000
 from .utils.models import Booster
 
 # Wind to the left, sway to the right, Drop it down low and take it back high
@@ -29,7 +30,7 @@ class TooManyRoles(Exception):
 class RoleManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.sessionmaker = sessionmaker(self.bot.engine, class_=AsyncSession)
+        self.sessionmaker = sessionmaker(self.bot.engine, class_=AsyncSession, future=True)
         self.debug = self.bot.debug
 
     def is_boosting(self, member):
@@ -129,6 +130,14 @@ class RoleManagement(commands.Cog):
         if new_name.lower() in ["dj", "bot commander", "giveaways"]:
             await ctx.send("Blacklisted role name, unable to rename your custom role to that.", hidden=True)
             return
+        
+        # make sure that the user isn't trying to copy another role
+        role_names = []
+        for role in ctx.guild.roles:
+            role_names.append(role.name.lower())
+        
+        if new_name.lower() in role_names:
+            await ctx.send("There's already another role with that name, unable to rename your custom role to that.", hidden=True)
 
         await ctx.defer(hidden=True)
         # make sure we have the booster and the role is alright
@@ -164,9 +173,11 @@ class RoleManagement(commands.Cog):
                                 )
                             ])
     async def _recolor(self, ctx, new_color):
+        # check if boosting
         if not self.is_boosting(ctx.author):
             await ctx.send("You must be a booster to get a custom role.", hidden=True)
             return
+        # try to get color in usable format
         try:
             new_color = await ColorConverter().convert(ctx, str(new_color))
         except (BadColorArgument):
@@ -184,6 +195,39 @@ class RoleManagement(commands.Cog):
         # db stuff and actual recoloring
         async with self.sessionmaker() as session:
             async with session.begin():
+                # Color similarity check stuff
+                # get roles
+                og_roles = ctx.guild.roles
+                roles = []
+                # get guild's boosters
+                boosters_result = await session.execute(select(Booster).where(Booster.role_id != None, Booster.guild_id == ctx.guild.id))
+                boosters = boosters_result.scalars().fetchall()
+                # now we remove any default colored roles or custom roles from the roles variable
+                for role in og_roles:
+                    if role.color.value == 0:
+                        continue
+                    for row in boosters:
+                        if row.role_id == role.id:
+                            break
+                    roles.append(role)
+                # Now we compare to find the most similar role, and how similar it is
+                closest_similarity = 99
+                closest_role = None
+
+                for role in roles:
+                    role_lab = rgb2lab(role.color.to_rgb())
+                    custom_role_lab = rgb2lab(new_color.to_rgb())
+                    similarity = ciede2000(role_lab, custom_role_lab)
+                    # update the closest stuff
+                    if similarity <= closest_similarity:
+                        closest_similarity = similarity
+                        closest_role = role
+                
+                # check if it's too similar, and tell then return if it is
+                if closest_similarity <= 9:
+                    await ctx.send(f"That color is too similar to {closest_role.mention}, unable to recolor your custom role.", hidden=True, allowed_mentions=AllowedMentions.none())
+                    return
+                
                 # get the booster
                 result = await session.execute(select(Booster).where(Booster.user_id == ctx.author.id, Booster.guild_id == ctx.guild.id))
                 booster = result.scalars().first()
