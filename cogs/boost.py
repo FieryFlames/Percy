@@ -36,6 +36,10 @@ class BoostHandler(commands.Cog):
                 # get the booster
                 result = await session.execute(select(Booster).where(Booster.user_id == member.id, Booster.guild_id == guild.id))
                 booster = result.scalars().first()
+                # account for cases where user isn't in db
+                if booster == None:
+                    return
+
                 # get the role
                 role = guild.get_role(booster.role_id)
                 # delete that mf
