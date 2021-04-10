@@ -1,4 +1,4 @@
-from discord import Color, AllowedMentions
+from discord import Color, AllowedMentions, User
 from discord.ext import commands
 from discord.ext.commands import ColorConverter
 from discord.ext.commands.errors import BadColorArgument
@@ -35,7 +35,7 @@ class RoleManagement(commands.Cog):
         self.debug = self.bot.debug
 
     def is_boosting(self, member):
-        if not member.premium_since and not self.debug:
+        if not member.premium_since and not self.debug or type(member) == User:
             return False
         else:
             return True
