@@ -145,7 +145,8 @@ class RoleManagement(commands.Cog):
 
         if new_name.lower() in role_names:
             await ctx.send("There's already another role with that name, unable to rename your custom role to that.", hidden=True)
-
+            return
+            
         await ctx.defer(hidden=True)
         # make sure we have the booster and the role is alright
         await self.assure_booster(ctx.author)
