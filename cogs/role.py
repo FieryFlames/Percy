@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 from profanity_check import predict_prob
+from sqlalchemy.sql.expression import false
 
 from .utils.ciede2000 import rgb2lab, ciede2000
 from .utils.models import Booster
@@ -35,7 +36,9 @@ class RoleManagement(commands.Cog):
         self.debug = self.bot.debug
 
     def is_boosting(self, member):
-        if not member.premium_since and not self.debug or type(member) == User:
+        if type(member) == User:
+            return False
+        if not member.premium_since and not self.debug:
             return False
         else:
             return True
