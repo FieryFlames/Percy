@@ -36,8 +36,6 @@ class RoleManagement(commands.Cog):
         self.debug = self.bot.debug
 
     def is_boosting(self, member):
-        if type(member) == User:
-            return False
         if not member.premium_since and not self.debug:
             return False
         else:
@@ -118,11 +116,9 @@ class RoleManagement(commands.Cog):
                                 )
                             ])
     async def _rename(self, ctx, new_name):
-        dm_channel = ctx.author.dm_channel
-        if dm_channel:
-            if ctx.channel_id == dm_channel.id:
-                await ctx.send("Role customization is not supported in DMs.")
-                return
+        if not ctx.guild:
+            await ctx.send("Role customization is unsupported in DMs.", hidden=True)
+            return
 
         if not self.is_boosting(ctx.author):
             await ctx.send("You must be a booster to get a custom role.", hidden=True)
@@ -184,11 +180,10 @@ class RoleManagement(commands.Cog):
                                 )
                             ])
     async def _recolor(self, ctx, new_color):
-        dm_channel = ctx.author.dm_channel
-        if dm_channel:
-            if ctx.channel_id == dm_channel.id:
-                await ctx.send("Role customization is not supported in DMs.")
-                return
+        if not ctx.guild:
+            await ctx.send("Role customization is unsupported in DMs.", hidden=True)
+            return
+
         # check if boosting
         if not self.is_boosting(ctx.author):
             await ctx.send("You must be a booster to get a custom role.", hidden=True)
