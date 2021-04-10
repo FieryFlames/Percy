@@ -30,7 +30,8 @@ class TooManyRoles(Exception):
 class RoleManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.sessionmaker = sessionmaker(self.bot.engine, class_=AsyncSession, future=True)
+        self.sessionmaker = sessionmaker(
+            self.bot.engine, class_=AsyncSession, future=True)
         self.debug = self.bot.debug
 
     def is_boosting(self, member):
@@ -114,6 +115,12 @@ class RoleManagement(commands.Cog):
                                 )
                             ])
     async def _rename(self, ctx, new_name):
+        dm_channel = ctx.author.dm_channel
+        if dm_channel:
+            if ctx.channel_id == dm_channel.id:
+                await ctx.send("Role customization is not supported in DMs.")
+                return
+
         if not self.is_boosting(ctx.author):
             await ctx.send("You must be a booster to get a custom role.", hidden=True)
             return
@@ -130,12 +137,12 @@ class RoleManagement(commands.Cog):
         if new_name.lower() in ["dj", "bot commander", "giveaways"]:
             await ctx.send("Blacklisted role name, unable to rename your custom role to that.", hidden=True)
             return
-        
+
         # make sure that the user isn't trying to copy another role
         role_names = []
         for role in ctx.guild.roles:
             role_names.append(role.name.lower())
-        
+
         if new_name.lower() in role_names:
             await ctx.send("There's already another role with that name, unable to rename your custom role to that.", hidden=True)
 
@@ -173,6 +180,11 @@ class RoleManagement(commands.Cog):
                                 )
                             ])
     async def _recolor(self, ctx, new_color):
+        dm_channel = ctx.author.dm_channel
+        if dm_channel:
+            if ctx.channel_id == dm_channel.id:
+                await ctx.send("Role customization is not supported in DMs.")
+                return
         # check if boosting
         if not self.is_boosting(ctx.author):
             await ctx.send("You must be a booster to get a custom role.", hidden=True)
@@ -222,12 +234,12 @@ class RoleManagement(commands.Cog):
                     if similarity <= closest_similarity:
                         closest_similarity = similarity
                         closest_role = role
-                
+
                 # check if it's too similar, and tell then return if it is
                 if closest_similarity <= 9:
                     await ctx.send(f"That color is too similar to {closest_role.mention}, unable to recolor your custom role.", hidden=True, allowed_mentions=AllowedMentions.none())
                     return
-                
+
                 # get the booster
                 result = await session.execute(select(Booster).where(Booster.user_id == ctx.author.id, Booster.guild_id == ctx.guild.id))
                 booster = result.scalars().first()
