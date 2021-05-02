@@ -286,19 +286,5 @@ class RoleManagement(commands.Cog):
         # alert user
         await ctx.send("Recolored your custom role.", hidden=True)
 
-    # TODO: Implement role sharing, https://trello.com/c/0uGdMGx2/9-role-sharing
-    # @cog_ext.cog_subcommand(guild_ids=guild_ids, base="role", name="share", description="Share your custom role.",
-    #                        options=[
-    #                            create_option(
-    #                                name="member",
-    #                                description="Member who you'd like to share your custom role with.",
-    #                                option_type=6,
-    #                                required=True
-    #                            )
-    #                        ])
-    # async def _share(self, ctx, extra_user):
-    #    return
-
-
 def setup(bot):
     bot.add_cog(RoleManagement(bot))
