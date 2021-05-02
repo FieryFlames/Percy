@@ -269,7 +269,7 @@ class RoleManagement(commands.Cog):
                         closest_role = role
 
                 # check if it's too similar, and tell then return if it is
-                if closest_similarity <= 9:
+                if closest_similarity <= 3:
                     await ctx.send(f"That color is too similar to {closest_role.mention}, unable to recolor your custom role.", hidden=True, allowed_mentions=AllowedMentions.none())
                     return
 
