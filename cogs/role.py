@@ -11,28 +11,8 @@ from profanity_check import predict_prob
 
 from .utils.ciede2000 import rgb2lab, ciede2000
 from .utils.models import Booster
-
-# Wind to the left, sway to the right, Drop it down low and take it back high
-
-
-class NotAllowedRole(Exception):
-    pass
-
-
-class NotBoosting(Exception):
-    pass
-
-
-class BelowMember(Exception):
-    pass
-
-
-class MissingManageRoles(Exception):
-    pass
-
-
-class TooManyRoles(Exception):
-    pass
+from .utils.checks import is_allowed_role
+from .utils.errors import BelowMember, TooManyRoles
 
 
 class RoleManagement(commands.Cog):
@@ -40,23 +20,6 @@ class RoleManagement(commands.Cog):
         self.bot = bot
         self.sessionmaker = sessionmaker(
             self.bot.engine, class_=AsyncSession, future=True)
-
-    def is_allowed_role(self, member):
-        # firstly check if they are blocked from having a custom role. this takes priority
-        for role in member.roles:
-            if role.name.lower() == "cease customizing":
-                raise NotAllowedRole
-
-        # Now, check if they're allowed a custom role
-        for role in member.roles:
-            if role.name.lower().startswith("customizing permit"):
-                return True
-
-        # Finally, check if they're boosting
-        if member.premium_since != None:
-            return True
-        else:
-            raise NotBoosting
 
     async def assure_role(self, member):
         guild = member.guild
@@ -68,8 +31,6 @@ class RoleManagement(commands.Cog):
         # failsafes
         if bot_top_role <= member_top_role:
             raise BelowMember
-        elif not bot.guild_permissions.manage_roles:
-            raise MissingManageRoles
         elif len(guild.roles) >= 249:
             raise TooManyRoles
 
@@ -132,23 +93,10 @@ class RoleManagement(commands.Cog):
                                     required=True
                                 )
                             ])
+    @commands.guild_only()
+    @is_allowed_role()
+    @commands.bot_has_permissions(manage_roles=True)
     async def _rename(self, ctx, new_name):
-        if not ctx.guild:
-            await ctx.send("Role customization is unsupported in DMs.", hidden=True)
-            return
-
-        try:
-            if self.is_allowed_role(ctx.author):
-                pass
-        except (NotBoosting, NotAllowedRole) as e:
-            if type(e) == NotAllowedRole:
-                await ctx.send(f"{self.bot.emoji['No']} You aren't allowed to customize your role right now, ask an admin about this.", hidden=True)
-                return
-
-            if type(e) == NotBoosting:
-                await ctx.send(f"{self.bot.emoji['No']} You currently aren't boosting.", hidden=True)
-                return
-
         new_name = str(new_name)
         # make sure new name isnt too long
         if len(new_name) >= 101:
@@ -175,12 +123,7 @@ class RoleManagement(commands.Cog):
         await ctx.defer(hidden=True)
         # make sure we have the booster and the role is alright
         await self.assure_booster(ctx.author)
-        # catch any failsafes
-        try:
-            await self.assure_role(ctx.author)
-        except (BelowMember, MissingManageRoles, TooManyRoles):
-            await ctx.send("Something's stopping me from assuring you have a role. This could be due to a few things, ask a Admin to check these:\n1.  if I have the Manage Roles permission.\n3. if my top role is above your top role.\n2. if there is 250 roles or more.", hidden=True)
-            return
+        await self.assure_role(ctx.author)
         # db stuff and actual renaming
         async with self.sessionmaker() as session:
             async with session.begin():
@@ -205,23 +148,10 @@ class RoleManagement(commands.Cog):
                                     required=True
                                 )
                             ])
+    @commands.guild_only()
+    @is_allowed_role()
+    @commands.bot_has_permissions(manage_roles=True)
     async def _recolor(self, ctx, new_color):
-        if not ctx.guild:
-            await ctx.send("Role customization is unsupported in DMs.", hidden=True)
-            return
-
-        try:
-            if self.is_allowed_role(ctx.author):
-                pass
-        except (NotBoosting, NotAllowedRole) as e:
-            if type(e) == NotAllowedRole:
-                await ctx.send(f"{self.bot.emoji['No']} You aren't allowed to customize your role right now, ask an admin about this.", hidden=True)
-                return
-
-            if type(e) == NotBoosting:
-                await ctx.send(f"{self.bot.emoji['No']} You currently aren't boosting.", hidden=True)
-                return
-
         # try to get color in usable format
         try:
             new_color = await ColorConverter().convert(ctx, str(new_color))
@@ -231,12 +161,7 @@ class RoleManagement(commands.Cog):
         await ctx.defer(hidden=True)
         # make sure we have the booster and the role is alright
         await self.assure_booster(ctx.author)
-        # catch any failsafes
-        try:
-            await self.assure_role(ctx.author)
-        except (BelowMember, MissingManageRoles, TooManyRoles):
-            await ctx.send("Something's stopping me from assuring you have a role. This could be due to a few things, ask a Admin to check these:\n1.  if I have the Manage Roles permission.\n3. if my top role is above your top role.\n2. if there is 250 roles or more.", hidden=True)
-            return
+        await self.assure_role(ctx.author)
         # db stuff and actual recoloring
         async with self.sessionmaker() as session:
             async with session.begin():
@@ -285,6 +210,7 @@ class RoleManagement(commands.Cog):
             await session.commit()
         # alert user
         await ctx.send("Recolored your custom role.", hidden=True)
+
 
 def setup(bot):
     bot.add_cog(RoleManagement(bot))

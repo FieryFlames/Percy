@@ -7,7 +7,7 @@ from discord_slash import SlashCommand
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from cogs.utils.models import Base
-
+from cogs.utils.errors import BelowMember, NotBoosting, NotAllowedRole, TooManyRoles
 # define some stuff
 parser = argparse.ArgumentParser(description="Percy Launcher")
 
@@ -49,7 +49,7 @@ class BBot(commands.Bot):
 
         # add slash commands
         SlashCommand(self, sync_commands=True)
-        
+
         for cog in cogs:
             self.load_extension(cog)
 
@@ -65,6 +65,35 @@ class BBot(commands.Bot):
 
     async def on_ready(self):
         print("Ready!")
+
+    # Error handler for common errors, more common errors go in commands themselves for now
+    async def on_slash_command_error(self, ctx, err):
+        if isinstance(err, commands.NoPrivateMessage):
+            await ctx.send(f"{self.emoji['Warn']} This command cannot be used in private messages")
+
+        elif isinstance(err, NotBoosting):
+            await ctx.send(f"{self.emoji['Warn']} This command is exclusive to boosters", hidden=True)
+
+        elif isinstance(err, commands.BotMissingPermissions):
+            #           list to string        remove [] remove '         remove _          capitalize
+            perms_str = str(err.missing_perms)[
+                1:][:-1].replace("'", '').replace("_", " ").capitalize()
+            await ctx.send(f"{self.emoji['Warn']} I need the following permissions: {perms_str}", hidden=True)
+
+        elif isinstance(err, commands.MissingPermissions):
+            #           list to string        remove [] remove '         remove _          capitalize
+            perms_str = str(err.missing_perms)[
+                1:][:-1].replace("'", '').replace("_", " ").capitalize()
+            await ctx.send(f"{self.emoji['Warn']} You need the following permissions: {perms_str}", hidden=True)
+
+        elif isinstance(err, BelowMember):
+            await ctx.send(f"{self.emoji['Warn']} I can't give you a custom role as your top role is above mine", hidden=True)
+
+        elif isinstance(err, TooManyRoles):
+            await ctx.send(f"{self.emoji['Warn']} I can't give you a custom role as this server has hit the role cap of 250", hidden=True)
+
+        elif isinstance(err, NotAllowedRole):
+            await ctx.send(f"{self.emoji['Warn']} You can't customize your role at this time", hidden=True)
 
 
 bot = BBot(url, color, emoji, version, cogs)
