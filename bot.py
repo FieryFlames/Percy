@@ -24,14 +24,13 @@ with open(args.config) as conf_file:
 token = config["Discord"]["Token"]
 url = config["SQLAlchemy"]["URL"]
 color = config["Bot"]["Color"]
-version = config["Bot"]["Version"]
 cogs = config["Bot"]["Cogs"]
 emoji = config["Emoji"]
 # actual bot
 
 
 class BBot(commands.Bot):
-    def __init__(self, url, color, emoji, version, cogs):
+    def __init__(self, url, color, emoji, cogs):
         # set intents
         intents = discord.Intents.default()
         intents.members = True
@@ -61,7 +60,7 @@ class BBot(commands.Bot):
 
         # set the activity
         activity = discord.Activity(
-            type=discord.ActivityType.listening, name=f"boost events | v{version}")
+            type=discord.ActivityType.listening, name=f"boost events")
         await self.change_presence(status=discord.Status.idle, activity=activity)
 
     async def on_ready(self):
