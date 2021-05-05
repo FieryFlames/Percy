@@ -100,15 +100,15 @@ class RoleManagement(commands.Cog):
         new_name = str(new_name)
         # make sure new name isnt too long
         if len(new_name) >= 101:
-            await ctx.send("New name must be under 100 characters.", hidden=True)
+            await ctx.send(f"{self.emoji['No']} New name must be under 100 characters.", hidden=True)
             return
 
         if predict_prob([new_name]) >= 0.17:
-            await ctx.send("Profanity detected, unable to rename your custom role to that.", hidden=True)
+            await ctx.send(f"{self.emoji['No']} Profanity detected, unable to rename your custom role to that.", hidden=True)
             return
 
         if new_name.lower() in ["dj", "bot commander", "giveaways", "cease customizing"] or new_name.lower().startswith("customizing permit"):
-            await ctx.send("Blacklisted role name, unable to rename your custom role to that.", hidden=True)
+            await ctx.send(f"{self.emoji['No']} Blacklisted role name, unable to rename your custom role to that.", hidden=True)
             return
 
         # make sure that the user isn't trying to copy another role
@@ -117,7 +117,7 @@ class RoleManagement(commands.Cog):
             role_names.append(role.name.lower())
 
         if new_name.lower() in role_names:
-            await ctx.send("There's already another role with that name, unable to rename your custom role to that.", hidden=True)
+            await ctx.send(f"{self.emoji['No']} There's already another role with that name, unable to rename your custom role to that.", hidden=True)
             return
 
         await ctx.defer(hidden=True)
@@ -137,7 +137,7 @@ class RoleManagement(commands.Cog):
 
                 booster.role_name = new_name  # update db
             await session.commit()
-        await ctx.send("Renamed your custom role.", hidden=True)  # alert user
+        await ctx.send(f"{self.emoji['Success']} Renamed your custom role.", hidden=True)  # alert user
 
     @cog_ext.cog_subcommand(base="role", name="recolor", description="Recolor your custom role.",
                             options=[
@@ -156,7 +156,7 @@ class RoleManagement(commands.Cog):
         try:
             new_color = await ColorConverter().convert(ctx, str(new_color))
         except (BadColorArgument):
-            await ctx.send("Something's wrong with your color. Are you sure it's formatted in a way I can understand?", hidden=True)
+            await ctx.send(f"{self.emoji['Warn']} Something's wrong with your color. Are you sure it's formatted in a way I can understand?", hidden=True)
             return
         await ctx.defer(hidden=True)
         # make sure we have the booster and the role is alright
@@ -195,7 +195,7 @@ class RoleManagement(commands.Cog):
 
                 # check if it's too similar, and tell then return if it is
                 if closest_similarity <= 3:
-                    await ctx.send(f"That color is too similar to {closest_role.mention}, unable to recolor your custom role.", hidden=True, allowed_mentions=AllowedMentions.none())
+                    await ctx.send(f"{self.emoji['No']} That color is too similar to {closest_role.mention}, unable to recolor your custom role.", hidden=True, allowed_mentions=AllowedMentions.none())
                     return
 
                 # get the booster

@@ -72,7 +72,7 @@ class BBot(commands.Bot):
             await ctx.send(f"{self.emoji['Warn']} This command cannot be used in private messages")
 
         elif isinstance(error, NotBoosting):
-            await ctx.send(f"{self.emoji['Warn']} This command is exclusive to boosters", hidden=True)
+            await ctx.send(f"{self.emoji['No']} This command is exclusive to boosters", hidden=True)
 
         elif isinstance(error, commands.BotMissingPermissions):
             #           list to string        remove [] remove '         remove _          capitalize
@@ -84,7 +84,7 @@ class BBot(commands.Bot):
             #           list to string        remove [] remove '         remove _          capitalize
             perms_str = str(error.missing_perms)[
                 1:][:-1].replace("'", '').replace("_", " ").capitalize()
-            await ctx.send(f"{self.emoji['Warn']} You need the following permissions: {perms_str}", hidden=True)
+            await ctx.send(f"{self.emoji['No']} You need the following permissions: {perms_str}", hidden=True)
 
         elif isinstance(error, BelowMember):
             await ctx.send(f"{self.emoji['Warn']} I can't give you a custom role as your top role is above mine", hidden=True)
@@ -93,7 +93,7 @@ class BBot(commands.Bot):
             await ctx.send(f"{self.emoji['Warn']} I can't give you a custom role as this server has hit the role cap of 250", hidden=True)
 
         elif isinstance(error, NotAllowedRole):
-            await ctx.send(f"{self.emoji['Warn']} You can't customize your role at this time", hidden=True)
+            await ctx.send(f"{self.emoji['No']} You can't customize your role at this time", hidden=True)
 
         else:
             # All other Errors not returned come here. And we can just print the default TraceBack.
