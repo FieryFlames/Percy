@@ -102,6 +102,6 @@ class BBot(commands.Bot):
                 type(error), error, error.__traceback__, file=sys.stderr)
 
 
-bot = BBot(url, color, emoji, version, cogs)
+bot = BBot(url, color, emoji, cogs)
 
 bot.run(token)
