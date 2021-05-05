@@ -5,7 +5,8 @@ import toml
 from discord.ext import commands
 from discord_slash import SlashCommand
 from sqlalchemy.ext.asyncio import create_async_engine
-
+import traceback
+import sys
 from cogs.utils.models import Base
 from cogs.utils.errors import BelowMember, NotBoosting, NotAllowedRole, TooManyRoles
 # define some stuff
@@ -67,33 +68,39 @@ class BBot(commands.Bot):
         print("Ready!")
 
     # Error handler for common errors, more common errors go in commands themselves for now
-    async def on_slash_command_error(self, ctx, err):
-        if isinstance(err, commands.NoPrivateMessage):
+    async def on_slash_command_error(self, ctx, error):
+        if isinstance(error, commands.NoPrivateMessage):
             await ctx.send(f"{self.emoji['Warn']} This command cannot be used in private messages")
 
-        elif isinstance(err, NotBoosting):
+        elif isinstance(error, NotBoosting):
             await ctx.send(f"{self.emoji['Warn']} This command is exclusive to boosters", hidden=True)
 
-        elif isinstance(err, commands.BotMissingPermissions):
+        elif isinstance(error, commands.BotMissingPermissions):
             #           list to string        remove [] remove '         remove _          capitalize
-            perms_str = str(err.missing_perms)[
+            perms_str = str(error.missing_perms)[
                 1:][:-1].replace("'", '').replace("_", " ").capitalize()
             await ctx.send(f"{self.emoji['Warn']} I need the following permissions: {perms_str}", hidden=True)
 
-        elif isinstance(err, commands.MissingPermissions):
+        elif isinstance(error, commands.MissingPermissions):
             #           list to string        remove [] remove '         remove _          capitalize
-            perms_str = str(err.missing_perms)[
+            perms_str = str(error.missing_perms)[
                 1:][:-1].replace("'", '').replace("_", " ").capitalize()
             await ctx.send(f"{self.emoji['Warn']} You need the following permissions: {perms_str}", hidden=True)
 
-        elif isinstance(err, BelowMember):
+        elif isinstance(error, BelowMember):
             await ctx.send(f"{self.emoji['Warn']} I can't give you a custom role as your top role is above mine", hidden=True)
 
-        elif isinstance(err, TooManyRoles):
+        elif isinstance(error, TooManyRoles):
             await ctx.send(f"{self.emoji['Warn']} I can't give you a custom role as this server has hit the role cap of 250", hidden=True)
 
-        elif isinstance(err, NotAllowedRole):
+        elif isinstance(error, NotAllowedRole):
             await ctx.send(f"{self.emoji['Warn']} You can't customize your role at this time", hidden=True)
+
+        else:
+            # All other Errors not returned come here. And we can just print the default TraceBack.
+            print('Ignoring exception in command', file=sys.stderr)
+            traceback.print_exception(
+                type(error), error, error.__traceback__, file=sys.stderr)
 
 
 bot = BBot(url, color, emoji, version, cogs)
