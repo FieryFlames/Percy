@@ -1,0 +1,6 @@
+discord.py
+discord-py-slash-command
+toml
+alt-profanity-check
+sqlalchemy
+asyncpg
