@@ -6,8 +6,8 @@ from sqlalchemy.orm import sessionmaker
 from .utils.models import Booster
 
 
-# This cog handles removing members (or ex-members) custom roles and booster row
-class ModHandler(commands.Cog):
+# This cog handles removing custom roles lost by other methods than unboosting.
+class OtherHandler(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.sessionmaker = sessionmaker(self.bot.engine, class_=AsyncSession)
@@ -55,4 +55,4 @@ class ModHandler(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(ModHandler(bot))
+    bot.add_cog(OtherHandler(bot))
