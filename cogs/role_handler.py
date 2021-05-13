@@ -32,7 +32,6 @@ class RoleHandler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        print("here")
         # boost
         if not before.premium_since and after.premium_since:
             await self.on_member_boost(after)
