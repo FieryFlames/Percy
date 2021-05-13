@@ -50,7 +50,7 @@ class RoleHandler(commands.Cog):
             if role.name.lower().startswith("customizing permit"):
                 has_permit = True
         
-        if has_permit == False and had_permit == True:
+        if has_permit == False and had_permit == True and after.premium_since != None:
             await self.on_customizing_permit_removed(after)
     # Boost handlers
 
