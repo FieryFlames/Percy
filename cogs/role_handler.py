@@ -24,7 +24,8 @@ class RoleHandler(commands.Cog):
                 # get the role
                 role = guild.get_role(booster.role_id)
                 # delete that mf
-                await role.delete(reason=reason.format(user=user))
+                if role != None:
+                    await role.delete(reason=reason.format(user=user))
                 # delete the booster row too
                 await session.delete(booster)
             await session.commit()
