@@ -95,7 +95,7 @@ class RoleManagement(commands.Cog):
                             ])
     @commands.guild_only()
     @is_allowed_role()
-    @commands.bot_has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True)
     async def _rename(self, ctx, name):
         new_name = name
         # make sure new name isnt too long
@@ -150,7 +150,7 @@ class RoleManagement(commands.Cog):
                             ])
     @commands.guild_only()
     @is_allowed_role()
-    @commands.bot_has_permissions(manage_roles=True)
+    @commands.bot_has_guild_permissions(manage_roles=True)
     async def _recolor(self, ctx, color):
         # try to get color in usable format
         try:
