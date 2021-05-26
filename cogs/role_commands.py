@@ -15,7 +15,7 @@ from .utils.checks import is_allowed_role
 from .utils.errors import BelowMember, TooManyRoles
 
 
-class RoleManagement(commands.Cog):
+class RoleCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.sessionmaker = sessionmaker(
@@ -215,4 +215,4 @@ class RoleManagement(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(RoleManagement(bot))
+    bot.add_cog(RoleCommands(bot))
