@@ -20,6 +20,7 @@ class RoleCommands(commands.Cog):
         self.bot = bot
         self.sessionmaker = sessionmaker(
             self.bot.engine, class_=AsyncSession, future=True)
+        self.role_management = self.bot.get_cog("RoleCommon")
 
     @cog_ext.cog_subcommand(base="role", name="rename", description="Rename your custom role.",
                             options=[
@@ -59,8 +60,8 @@ class RoleCommands(commands.Cog):
 
         await ctx.defer(hidden=True)
         # make sure we have the booster and the role is alright
-        await self.assure_booster(ctx.author)
-        await self.assure_role(ctx.author)
+        await self.role_management.assure_booster(ctx.author)
+        await self.role_management.assure_role(ctx.author)
         # db stuff and actual renaming
         async with self.sessionmaker() as session:
             async with session.begin():
@@ -97,8 +98,8 @@ class RoleCommands(commands.Cog):
             return
         await ctx.defer(hidden=True)
         # make sure we have the booster and the role is alright
-        await self.assure_booster(ctx.author)
-        await self.assure_role(ctx.author)
+        await self.role_management.assure_booster(ctx.author)
+        await self.role_management.assure_role(ctx.author)
         # db stuff and actual recoloring
         async with self.sessionmaker() as session:
             async with session.begin():
