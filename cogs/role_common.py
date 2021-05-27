@@ -5,7 +5,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import sessionmaker
 
 from .utils.models import Booster
-from .utils.errors import TooManyRoles
+from .utils.errors import BelowVisibleRole, TooManyRoles
 
 
 class RoleCommon(commands.Cog):
@@ -40,16 +40,12 @@ class RoleCommon(commands.Cog):
                 # if there isn't a colored role just make the @everyone role it so that the next 2nd bit works
                 if visible_role == None:
                     visible_role = guild.default_role
-                
-                # return the role if the role is already in the right spot
-                if custom_role != None:
-                    if visible_role == custom_role:
-                        return custom_role
 
-                # check to make sure the bot can make roles above the visible role
+                # check to make sure the bot can move roles above the visible role
                 if bot_top_role <= visible_role:
-                    return # TODO: replace with a exception
+                    raise BelowVisibleRole
                 
+                # make custom role if it doesnt exist
                 if custom_role == None:
                     # usernames cant be longer than 30 charachers, even with the addition of discriminator and "'s Custom Role" we're barely above 50
                     role_name = f"{str(member)}'s Custom Role"
@@ -63,8 +59,18 @@ class RoleCommon(commands.Cog):
 
                     custom_role = await guild.create_role(name=role_name, color=role_color, reason=f"Creating custom role for {str(member)}")
                     booster.role_id = custom_role.id
+
+                # add the role to member if not alr there
+                if custom_role not in member.roles:
+                    await member.add_roles(custom_role)
                 
-                await custom_role.edit(position=visible_role.position+1)
+                # move role if it isnt in the right spot
+                if visible_role != custom_role:
+                    new_positions = {
+                        custom_role: visible_role.position,
+                        visible_role: visible_role.position-1
+                    }
+                    await guild.edit_role_positions(positions=new_positions, reason=f"Moving roles around to get {custom_role.name}'s color to show")
                 
             await session.commit()
 
