@@ -11,7 +11,7 @@ class RoleHandler(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.sessionmaker = sessionmaker(self.bot.engine, class_=AsyncSession)
-        self.role_management = self.bot.get_cog("RoleCommands") # Change this to RoleCommon when we add it
+        self.role_management = self.bot.get_cog("RoleCommon")
 
     async def remove_role(self, guild, user, reason):
         async with self.sessionmaker() as session:
