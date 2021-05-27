@@ -109,13 +109,18 @@ class RoleCommands(commands.Cog):
                 # get guild's boosters
                 boosters_result = await session.execute(select(Booster).where(Booster.role_id != None, Booster.guild_id == ctx.guild.id))
                 boosters = boosters_result.scalars().fetchall()
+                # make a list of custom role ids so we can ignore them
+                custom_role_ids = []
+                for booster in boosters:
+                    if booster.role_id != 0:
+                        custom_role_ids.append(booster.role_id)
+
                 # now we remove any default colored roles or custom roles from the roles variable
                 for role in og_roles:
                     if role.color.value == 0:
                         continue
-                    for row in boosters:
-                        if row.role_id == role.id:
-                            break
+                    if role.id in custom_role_ids:
+                        continue
                     roles.append(role)
                 # Now we compare to find the most similar role, and how similar it is
                 closest_similarity = 99
