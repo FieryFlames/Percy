@@ -6,7 +6,7 @@ class NotBoosting(Exception):
     pass
 
 
-class BelowMember(Exception):
+class BelowVisibleRole(Exception):
     pass
 
 
