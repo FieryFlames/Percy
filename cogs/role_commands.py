@@ -12,7 +12,6 @@ from profanity_check import predict_prob
 from .utils.ciede2000 import rgb2lab, ciede2000
 from .utils.models import Booster
 from .utils.checks import is_allowed_role
-from .utils.errors import BelowMember, TooManyRoles
 
 
 class RoleCommands(commands.Cog):
