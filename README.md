@@ -15,7 +15,7 @@ Token = "<token here>"
 URL = "<sqlalchemy url here>"
 
 [Bot]
-Cogs = ["cogs.role_commands", "cogs.role_handler"]
+Cogs = ["cogs.role_commands", "cogs.role_common", "cogs.role_handler"]
 Color = 0x<hex code>
 
 [Emoji]
