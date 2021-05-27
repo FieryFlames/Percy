@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 import traceback
 import sys
 from cogs.utils.models import Base
-from cogs.utils.errors import BelowMember, NotBoosting, NotAllowedRole, TooManyRoles
+from cogs.utils.errors import BelowVisibleRole, NotBoosting, NotAllowedRole, TooManyRoles
 # define some stuff
 parser = argparse.ArgumentParser(description="Percy Launcher")
 
@@ -86,8 +86,8 @@ class BBot(commands.Bot):
                 1:][:-1].replace("'", '').replace("_", " ").capitalize()
             await ctx.send(f"{self.emoji['No']} You need the following permissions: {perms_str}", hidden=True)
 
-        elif isinstance(error, BelowMember):
-            await ctx.send(f"{self.emoji['Warn']} I can't give you a custom role as your top role is above mine", hidden=True)
+        elif isinstance(error, BelowVisibleRole):
+            await ctx.send(f"{self.emoji['Warn']} I can't give you a custom role as your visible role is above my top role", hidden=True)
 
         elif isinstance(error, TooManyRoles):
             await ctx.send(f"{self.emoji['Warn']} I can't give you a custom role as this server has hit the role cap of 250", hidden=True)
