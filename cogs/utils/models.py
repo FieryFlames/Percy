@@ -1,6 +1,6 @@
-from sqlalchemy import BIGINT, Column, Integer, String
+from sqlalchemy import BIGINT, Column, Integer, JSON, String
 from sqlalchemy.ext.declarative import declarative_base
-
+from sqlalchemy_json import NestedMutableJson
 Base = declarative_base()
 
 
@@ -15,3 +15,8 @@ class Booster(Base):
     # in my testing, the longest a role name can be is 100 characters
     role_name = Column(String(100), nullable=True)
     role_color = Column(Integer, nullable=True)
+
+
+class Guild(Base):
+    id = Column(BIGINT, primary_key=True, autoincrement=False)
+    data = Column(NestedMutableJson)
