@@ -32,14 +32,6 @@ class RoleHandler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        # boost
-        if not before.premium_since and after.premium_since:
-            await self.on_member_boost(after)
-            return
-        # stop boosting
-        elif not after.premium_since and before.premium_since:
-            await self.on_member_unboost(after)
-            return
         # permit for customizing removed
         had_permit = False
         has_permit = False
@@ -49,11 +41,12 @@ class RoleHandler(commands.Cog):
         for role in after.roles:
             if role.name.lower().startswith("customizing permit"):
                 has_permit = True
-        
+
         if has_permit == False and had_permit == True and after.premium_since != None:
             await self.on_customizing_permit_removed(after)
     # Boost handlers
 
+    @commands.Cog.listener()
     async def on_member_boost(self, member):
         await self.role_management.assure_booster(member)
         try:
@@ -61,6 +54,7 @@ class RoleHandler(commands.Cog):
         except Exception:
             return
 
+    @commands.Cog.listener()
     async def on_member_unboost(self, member):
         await self.remove_role(member.guild, member, "{user} (this custom role's primary user) stopped boosting")
 
