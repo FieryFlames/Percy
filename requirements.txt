@@ -4,3 +4,4 @@ toml
 alt-profanity-check
 sqlalchemy
 asyncpg
+sqlalchemy-json
