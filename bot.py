@@ -1,11 +1,22 @@
 import argparse
+import sys
+import traceback
+from colorama import init, Fore, Back, Style
 
 import discord
+from sqlalchemy import except_
 import toml
+from art import text2art
 from discord.ext import commands
 from discord_slash import SlashCommand
 from sqlalchemy.ext.asyncio import create_async_engine
+
 from cogs.utils.models import Base
+
+init(autoreset=True)
+
+print(Fore.GREEN + text2art("Percy"))
+
 # define some stuff
 parser = argparse.ArgumentParser(description="Percy Launcher")
 
@@ -26,7 +37,7 @@ emoji = config["Emoji"]
 # actual bot
 
 
-class BBot(commands.Bot):
+class Percy(commands.Bot):
     def __init__(self, url, color, emoji, cogs):
         # set intents
         intents = discord.Intents.default()
@@ -47,8 +58,17 @@ class BBot(commands.Bot):
         # add slash commands
         SlashCommand(self, sync_commands=True)
 
+        print(Fore.WHITE + "-- COGS --")
         for cog in cogs:
-            self.load_extension(cog)
+            try:
+                self.load_extension(cog)
+                print(Fore.GREEN + f"Successfully loaded " + Fore.WHITE + cog)
+
+            except Exception as error:
+                print('Ignoring exception in cog', file=sys.stderr)
+                traceback.print_exception(
+                    type(error), error, error.__traceback__, file=sys.stderr)
+                print(Fore.RED + "Failed to load " + Fore.WHITE + cog)
 
     async def on_connect(self):
         # Create the table if it doesn't exist
@@ -61,9 +81,10 @@ class BBot(commands.Bot):
         await self.change_presence(status=discord.Status.idle, activity=activity)
 
     async def on_ready(self):
-        print("Ready!")
+        print(Fore.WHITE + "-- INFO --")
+        print(Fore.GREEN + "Logged in as " + Fore.WHITE + str(self.user))
 
 
-bot = BBot(url, color, emoji, cogs)
+bot = Percy(url, color, emoji, cogs)
 
 bot.run(token)
