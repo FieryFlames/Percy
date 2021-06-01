@@ -5,10 +5,7 @@ import toml
 from discord.ext import commands
 from discord_slash import SlashCommand
 from sqlalchemy.ext.asyncio import create_async_engine
-import traceback
-import sys
 from cogs.utils.models import Base
-from cogs.utils.errors import BelowVisibleRole, NotBoosting, NotAllowedRole, TooManyRoles
 # define some stuff
 parser = argparse.ArgumentParser(description="Percy Launcher")
 
