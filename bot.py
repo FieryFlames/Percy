@@ -69,8 +69,11 @@ class Percy(commands.Bot):
                 traceback.print_exception(
                     type(error), error, error.__traceback__, file=sys.stderr)
                 print(Fore.RED + "Failed to load " + Fore.WHITE + cog)
+        
+        print(Fore.WHITE + "-- LOGS --")
 
     async def on_connect(self):
+        print(Fore.GREEN + "Connected as " + Fore.WHITE + str(self.user))
         # Create the table if it doesn't exist
         async with self.engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
@@ -80,10 +83,11 @@ class Percy(commands.Bot):
             type=discord.ActivityType.listening, name=f"boost events")
         await self.change_presence(status=discord.Status.idle, activity=activity)
 
-    async def on_ready(self):
-        print(Fore.WHITE + "-- INFO --")
-        print(Fore.GREEN + "Logged in as " + Fore.WHITE + str(self.user))
+    async def on_disconnect(self):
+        print(Fore.RED + "Disconnected")
 
+    async def on_ready(self):
+        print(Fore.GREEN + "Ready")
 
 bot = Percy(url, color, emoji, cogs)
 
