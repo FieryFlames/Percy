@@ -1,6 +1,6 @@
 from sqlalchemy import BIGINT, Column, Integer, JSON, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy_json import NestedMutableJson
+#from sqlalchemy_json import NestedMutableJson
 Base = declarative_base()
 
 
@@ -17,6 +17,6 @@ class Booster(Base):
     role_color = Column(Integer, nullable=True)
 
 
-class Guild(Base):
-    id = Column(BIGINT, primary_key=True, autoincrement=False)
-    data = Column(NestedMutableJson)
+#class Guild(Base):
+#    id = Column(BIGINT, primary_key=True, autoincrement=False)
+#    data = Column(NestedMutableJson)
