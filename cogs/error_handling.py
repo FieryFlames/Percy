@@ -7,6 +7,7 @@ from discord.ext import commands
 class ErrorHandling(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.emoji = self.bot.emoji
 
     # Error handler for common errors, more common errors go in commands themselves for now
     @commands.Cog.listener()
