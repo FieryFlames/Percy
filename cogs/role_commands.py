@@ -11,7 +11,7 @@ from profanity_check import predict_prob
 
 from .utils.ciede2000 import rgb2lab, ciede2000
 from .utils.models import Booster
-from .utils.checks import is_allowed_role
+from .utils.checks import bot_has_guild_permissions, is_allowed_role
 
 
 class RoleCommands(commands.Cog):
@@ -32,7 +32,7 @@ class RoleCommands(commands.Cog):
                             ])
     @commands.guild_only()
     @is_allowed_role()
-    @commands.bot_has_permissions(manage_roles=True)
+    @bot_has_guild_permissions(manage_roles=True)
     async def _rename(self, ctx, name):
         new_name = name
         # make sure new name isnt too long
@@ -87,7 +87,7 @@ class RoleCommands(commands.Cog):
                             ])
     @commands.guild_only()
     @is_allowed_role()
-    @commands.bot_has_permissions(manage_roles=True)
+    @bot_has_guild_permissions(manage_roles=True)
     async def _recolor(self, ctx, color):
         # try to get color in usable format
         try:

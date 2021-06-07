@@ -1,5 +1,9 @@
+import discord
 from discord.ext import commands
+from discord.ext.commands.errors import BotMissingPermissions, NoPrivateMessage
+
 from .errors import NotAllowedRole, NotBoosting
+
 
 def is_allowed_role():
     async def predicate(ctx):
@@ -19,4 +23,24 @@ def is_allowed_role():
             return True
         else:
             raise NotBoosting
+    return commands.check(predicate)
+
+# Modified discord.py check to work with slash commands
+def bot_has_guild_permissions(**perms):
+    invalid = set(perms) - set(discord.Permissions.VALID_FLAGS)
+    if invalid:
+        raise TypeError(f"Invalid permission(s): {', '.join(invalid)}")
+
+    def predicate(ctx):
+        if not ctx.guild:
+            raise NoPrivateMessage
+
+        permissions = ctx.guild.me.guild_permissions
+        missing = [perm for perm, value in perms.items() if getattr(permissions, perm) != value]
+
+        if not missing:
+            return True
+
+        raise BotMissingPermissions(missing)
+
     return commands.check(predicate)
