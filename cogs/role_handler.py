@@ -1,3 +1,6 @@
+from inspect import cleandoc
+
+from discord import Embed
 from discord.ext import commands
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -48,6 +51,26 @@ class RoleHandler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_boost(self, member):
+        async with self.sessionmaker() as session:
+            async with session.begin():
+                # get the booster
+                result = await session.execute(select(Booster).where(Booster.user_id == member.id, Booster.guild_id == member.guild.id))
+                booster = result.scalars().first()
+                # explain how bot works/onboarding
+                if not booster:
+                    explain = cleandoc("One of the perks of boosting is that you get a custom role.\n\
+                        to customize your role, use the `/role` commands:\n\n\
+                        `/role rename`: This renames your role, and takes any string. for example, `/role rename example` would rename your role to `example`.\n\n\
+                        `/role recolor`: This recolors your role, and takes any hex code. for example, `/role recolor #ffaaee` would recolor your role to a faint pink.\n\n\
+                        Now that we have covered how to customize your role, please be aware that if you unboost, your role will automatically be removed.")
+
+                    embed = Embed(
+                        title=f"Thanks for boosting {str(member.guild)}!", description=explain, color=self.bot.color)
+                    embed.set_image(
+                        url="https://cdn.discordapp.com/attachments/851689052112683008/851689105993236530/ezgif.com-optimize.gif")
+
+                    await member.send(embed=embed)
+
         await self.role_management.assure_booster(member)
         try:
             await self.role_management.assure_role(member)
