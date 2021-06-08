@@ -65,7 +65,7 @@ class RoleCommon(commands.Cog):
                     await member.add_roles(custom_role)
                 
                 # move role if it isnt in the right spot
-                if visible_role != custom_role:
+                if visible_role != custom_role and visible_role != guild.default_role:
                     new_positions = {
                         custom_role: visible_role.position,
                         visible_role: visible_role.position-1
