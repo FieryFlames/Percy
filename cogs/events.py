@@ -9,11 +9,11 @@ class Events(commands.Cog):
     async def on_member_update(self, before, after):
         # boost
         if not before.premium_since and after.premium_since:
-            self.bot.dispatch('on_member_boost', after)
+            self.bot.dispatch('member_boost', after)
 
         # stop boosting
         elif not after.premium_since and before.premium_since:
-            self.bot.dispatch('on_member_unboost', after)
+            self.bot.dispatch('member_unboost', after)
 
 
 def setup(bot):

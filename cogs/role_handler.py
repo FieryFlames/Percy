@@ -50,7 +50,8 @@ class RoleHandler(commands.Cog):
     # Boost handlers
 
     @commands.Cog.listener()
-    async def on_member_boost(self, member):
+    async def on_member_boost(self, after):
+        member = after
         async with self.sessionmaker() as session:
             async with session.begin():
                 # get the booster
@@ -78,8 +79,9 @@ class RoleHandler(commands.Cog):
             return
 
     @commands.Cog.listener()
-    async def on_member_unboost(self, member):
-        await self.remove_role(member.guild, member, "{user} (this custom role's primary user) stopped boosting")
+    async def on_member_unboost(self, after):
+        member = after
+        await self.remove_role(member.guild, member, "{member} (this custom role's primary user) stopped boosting")
 
     # Mod handlers
 
