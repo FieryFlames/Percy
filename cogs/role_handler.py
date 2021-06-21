@@ -58,7 +58,7 @@ class RoleHandler(commands.Cog):
                 result = await session.execute(select(Booster).where(Booster.user_id == member.id, Booster.guild_id == member.guild.id))
                 booster = result.scalars().first()
                 # explain how bot works/onboarding
-                if not booster:
+                if not booster and after.guild.id not in [568567800910839811, 110373943822540800]: # last bit is to disable for botlists ik this shouldnt be in source itll be config soon
                     explain = cleandoc("One of the perks of boosting is that you get a custom role.\n\
                         to customize your role, use the `/role` commands:\n\n\
                         `/role rename`: This renames your role, and takes any string. for example, `/role rename example` would rename your role to `example`.\n\n\
