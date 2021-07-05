@@ -74,7 +74,8 @@ class RoleCommands(commands.Cog):
 
                 booster.role_name = new_name  # update db
             await session.commit()
-        await ctx.send(f"{self.bot.emoji['Yes']} Renamed your custom role.", hidden=True)  # alert user
+        # alert user
+        await ctx.send(f"{self.bot.emoji['Yes']} Renamed your custom role.", hidden=True)
 
     @cog_ext.cog_subcommand(base="role", name="recolor", description="Recolor your custom role.",
                             options=[
@@ -154,6 +155,23 @@ class RoleCommands(commands.Cog):
         # TODO: revisit having embed for the role color?
         # embed = Embed(description=f"{self.bot.emoji['Yes']} Recolored your custom role.", color=custom_role.color)
         await ctx.send(f"{self.bot.emoji['Yes']} Recolored your custom role.", hidden=True)
+
+    @cog_ext.cog_subcommand(base="role", name="delete", description="Delete your custom role. Can be remade by running /role create.")
+    @commands.guild_only()
+    @is_allowed_role()
+    @bot_has_guild_permissions(manage_roles=True)
+    async def _delete(self, ctx):
+        await self.role_management.remove_role(ctx.author, ctx.guild, f"{ctx.author} (this custom role's primary user) requested that it be deleted.")
+        await ctx.send(f"{self.bot.emoji['Yes']} Deleted your custom role. You can recreate it with /role create.", hidden=True)
+
+    @cog_ext.cog_subcommand(base="role", name="create", description="Create your custom role.")
+    @commands.guild_only()
+    @is_allowed_role()
+    @bot_has_guild_permissions(manage_roles=True)
+    async def _create(self, ctx):
+        await self.role_management.assure_booster(ctx.author)
+        await self.role_management.assure_role(ctx.author)
+        await ctx.send(f"{self.bot.emoji['Yes']} Created your custom role. You can customize it with /role rename and /role recolor.", hidden=True)
 
 
 def setup(bot):
