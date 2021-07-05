@@ -36,7 +36,7 @@ class RoleCommon(commands.Cog):
                     if member_role.color != Color.default():
                         visible_role = member_role
                         break
-                
+
                 # if there isn't a colored role just make the @everyone role it so that the next 2nd bit works
                 if visible_role == None:
                     visible_role = guild.default_role
@@ -44,7 +44,7 @@ class RoleCommon(commands.Cog):
                 # check to make sure the bot can move roles above the visible role
                 if bot_top_role <= visible_role:
                     raise BelowVisibleRole
-                
+
                 # make custom role if it doesnt exist
                 if custom_role == None:
                     # usernames cant be longer than 30 charachers, even with the addition of discriminator and "'s Custom Role" we're barely above 50
@@ -63,7 +63,7 @@ class RoleCommon(commands.Cog):
                 # add the role to member if not alr there
                 if custom_role not in member.roles:
                     await member.add_roles(custom_role)
-                
+
                 # move role if it isnt in the right spot
                 if visible_role != custom_role and visible_role != guild.default_role:
                     new_positions = {
@@ -71,7 +71,7 @@ class RoleCommon(commands.Cog):
                         visible_role: visible_role.position-1
                     }
                     await guild.edit_role_positions(positions=new_positions, reason=f"Moving roles around to get {custom_role.name}'s color to show")
-                
+
             await session.commit()
 
     async def assure_booster(self, member):
@@ -86,6 +86,23 @@ class RoleCommon(commands.Cog):
                         guild_id=member.guild.id, user_id=member.id)
                     # add booster to the db
                     session.add(new_booster)
+            await session.commit()
+
+    async def remove_role(self, guild, user, reason):
+        async with self.sessionmaker() as session:
+            async with session.begin():
+                # get the booster
+                result = await session.execute(select(Booster).where(Booster.user_id == user.id, Booster.guild_id == guild.id))
+                booster = result.scalars().first()
+                if not booster:
+                    return
+                # get the role
+                role = guild.get_role(booster.role_id)
+                # delete that mf
+                if role != None:
+                    await role.delete(reason=reason.format(user=user))
+                # delete the booster row too
+                await session.delete(booster)
             await session.commit()
 
 

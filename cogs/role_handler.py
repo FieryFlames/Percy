@@ -16,23 +16,6 @@ class RoleHandler(commands.Cog):
         self.sessionmaker = sessionmaker(self.bot.engine, class_=AsyncSession)
         self.role_management = self.bot.get_cog("RoleCommon")
 
-    async def remove_role(self, guild, user, reason):
-        async with self.sessionmaker() as session:
-            async with session.begin():
-                # get the booster
-                result = await session.execute(select(Booster).where(Booster.user_id == user.id, Booster.guild_id == guild.id))
-                booster = result.scalars().first()
-                if not booster:
-                    return
-                # get the role
-                role = guild.get_role(booster.role_id)
-                # delete that mf
-                if role != None:
-                    await role.delete(reason=reason.format(user=user))
-                # delete the booster row too
-                await session.delete(booster)
-            await session.commit()
-
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
         # permit for customizing removed
@@ -81,7 +64,7 @@ class RoleHandler(commands.Cog):
     @commands.Cog.listener()
     async def on_member_unboost(self, after):
         member = after
-        await self.remove_role(member.guild, member, "{member} (this custom role's primary user) stopped boosting")
+        await self.role_management.remove_role(member.guild, member, "{member} (this custom role's primary user) stopped boosting")
 
     # Mod handlers
 
@@ -89,18 +72,18 @@ class RoleHandler(commands.Cog):
     async def on_member_ban(self, guild, user):
         if user.bot:
             return
-        await self.remove_role(guild, user, "{user} (this custom role's primary user) was banned")
+        await self.role_management.remove_role(guild, user, "{user} (this custom role's primary user) was banned")
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         if member.bot:
             return
-        await self.remove_role(member.guild, member, "{user} (this custom role's primary user) left")
+        await self.role_management.remove_role(member.guild, member, "{user} (this custom role's primary user) left")
 
     # Other handlers
 
     async def on_customizing_permit_removed(self, member):
-        await self.remove_role(member.guild, member, "{user} (this custom role's primary user) lost their customizing permit")
+        await self.role_management.remove_role(member.guild, member, "{user} (this custom role's primary user) lost their customizing permit")
 
 
 def setup(bot):
