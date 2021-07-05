@@ -64,7 +64,7 @@ class RoleHandler(commands.Cog):
     @commands.Cog.listener()
     async def on_member_unboost(self, after):
         member = after
-        await self.role_management.remove_role(member.guild, member, "{member} (this custom role's primary user) stopped boosting")
+        await self.role_management.remove_role(member.guild, member, f"{after} (this custom role's primary user) stopped boosting")
 
     # Mod handlers
 
@@ -72,18 +72,18 @@ class RoleHandler(commands.Cog):
     async def on_member_ban(self, guild, user):
         if user.bot:
             return
-        await self.role_management.remove_role(guild, user, "{user} (this custom role's primary user) was banned")
+        await self.role_management.remove_role(guild, user, f"{user} (this custom role's primary user) was banned")
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         if member.bot:
             return
-        await self.role_management.remove_role(member.guild, member, "{user} (this custom role's primary user) left")
+        await self.role_management.remove_role(member.guild, member, f"{member} (this custom role's primary user) left")
 
     # Other handlers
 
     async def on_customizing_permit_removed(self, member):
-        await self.role_management.remove_role(member.guild, member, "{user} (this custom role's primary user) lost their customizing permit")
+        await self.role_management.remove_role(member.guild, member, f"{member} (this custom role's primary user) lost their customizing permit")
 
 
 def setup(bot):
