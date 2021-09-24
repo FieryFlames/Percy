@@ -15,7 +15,7 @@ from cogs.utils.models import Base
 
 init(autoreset=True)
 
-print(Fore.GREEN + text2art("Percy"))
+print(Fore.BLUE + text2art("Splash O' Paint"))
 
 # define some stuff
 parser = argparse.ArgumentParser(description="Percy Launcher")
@@ -73,7 +73,7 @@ class Percy(commands.Bot):
         print(Fore.WHITE + "-- LOGS --")
 
     async def on_connect(self):
-        print(Fore.GREEN + "Connected as " + Fore.WHITE + str(self.user))
+        print(Fore.BLUE + "Connected as " + Fore.WHITE + str(self.user))
         # Create the table if it doesn't exist
         async with self.engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
